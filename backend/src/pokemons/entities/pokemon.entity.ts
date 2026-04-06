@@ -12,7 +12,7 @@ export class Pokemon {
   @Column({ unique: true })
   name!: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'text', nullable: true })
   spriteUrl!: string | null;
 
   @Column({ type: 'simple-array', default: '' })
