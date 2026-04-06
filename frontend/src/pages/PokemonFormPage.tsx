@@ -6,6 +6,7 @@ import { getErrorMessage } from '../lib/errors';
 import { Loader } from '../components/Loader';
 import { useToast } from '../hooks/useToast';
 import type { PokeApiCatalogItem, PokeApiPokemonMini } from '../types/api';
+import { PokemonNotesModal } from './modals/PokemonNotesModal';
 
 interface PokemonFormPageProps {
   mode: 'create' | 'edit';
@@ -25,7 +26,7 @@ export function PokemonFormPage({ mode }: PokemonFormPageProps) {
   const [catalogSearch, setCatalogSearch] = useState('');
   const [catalogPage, setCatalogPage] = useState(1);
   const [catalogDetails, setCatalogDetails] = useState<Record<number, PokeApiPokemonMini>>({});
-  const [isQuickAddingId, setIsQuickAddingId] = useState<number | null>(null);
+  const [isNotesModalOpen, setIsNotesModalOpen] = useState(false);
 
   useEffect(() => {
     async function loadCurrent() {
@@ -142,21 +143,37 @@ export function PokemonFormPage({ mode }: PokemonFormPageProps) {
     void loadVisibleDetails();
   }, [catalogDetails, mode, pushToast, visibleCatalogItems]);
 
-  async function handleQuickAdd(detail: PokeApiPokemonMini) {
-    setIsQuickAddingId(detail.id);
-
-    try {
-      const created = await addFavorite({
-        pokemon: detail.name,
-      });
-
-      pushToast(`${detail.name} added to favorites`, 'success');
-      navigate(`/pokemon/${created.id}`, { replace: true });
-    } catch (error) {
-      pushToast(getErrorMessage(error), 'error');
-    } finally {
-      setIsQuickAddingId(null);
+  const selectedCatalogDetail = useMemo(() => {
+    if (!pokemon) {
+      return null;
     }
+
+    const found = Object.values(catalogDetails).find(
+      (detail) => detail.name.toLowerCase() === pokemon.toLowerCase(),
+    );
+
+    return found ?? null;
+  }, [catalogDetails, pokemon]);
+
+  async function handleSelectCatalogCard(item: PokeApiCatalogItem) {
+    setPokemon(item.name);
+    setNotes('');
+    setComments('');
+
+    if (!catalogDetails[item.id]) {
+      try {
+        const detail = await getPokemonMiniDetail(item.id);
+
+        setCatalogDetails((current) => ({
+          ...current,
+          [detail.id]: detail,
+        }));
+      } catch (error) {
+        pushToast(getErrorMessage(error), 'error');
+      }
+    }
+
+    setIsNotesModalOpen(true);
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -212,56 +229,57 @@ export function PokemonFormPage({ mode }: PokemonFormPageProps) {
         </div>
       </header>
 
-      <form className="form-grid" onSubmit={handleSubmit} noValidate>
-        <label>
-          Pokemon Name or PokeAPI id
-          <input
-            type="text"
-            value={pokemon}
-            onChange={(event) => setPokemon(event.target.value)}
-            disabled={mode === 'edit'}
-            placeholder="pikachu or 25"
-            required={mode === 'create'}
-          />
-        </label>
+      {mode === 'edit' ? (
+        <form className="form-grid" onSubmit={handleSubmit} noValidate>
+          <label>
+            Pokemon Name or PokeAPI id
+            <input
+              type="text"
+              value={pokemon}
+              onChange={(event) => setPokemon(event.target.value)}
+              disabled
+              placeholder="pikachu or 25"
+            />
+          </label>
 
-        <label>
-          Notes
-          <textarea
-            value={notes}
-            onChange={(event) => setNotes(event.target.value)}
-            maxLength={500}
-            placeholder="Battle strategy, abilities, etc."
-          />
-        </label>
+          <label>
+            Notes
+            <textarea
+              value={notes}
+              onChange={(event) => setNotes(event.target.value)}
+              maxLength={500}
+              placeholder="Battle strategy, abilities, etc."
+            />
+          </label>
 
-        <label>
-          Comments
-          <textarea
-            value={comments}
-            onChange={(event) => setComments(event.target.value)}
-            maxLength={500}
-            placeholder="Extra observations"
-          />
-        </label>
+          <label>
+            Comments
+            <textarea
+              value={comments}
+              onChange={(event) => setComments(event.target.value)}
+              maxLength={500}
+              placeholder="Extra observations"
+            />
+          </label>
 
-        {validationError ? <p className="inline-error">{validationError}</p> : null}
+          {validationError ? <p className="inline-error">{validationError}</p> : null}
 
-        <div className="card-actions">
-          <Link className="ghost-btn" to={mode === 'create' ? '/dashboard' : `/pokemon/${id}`}>
-            Cancel
-          </Link>
-          <button type="submit" className="primary-btn" disabled={isSaving}>
-            {isSaving ? 'Saving...' : mode === 'create' ? 'Create favorite' : 'Save changes'}
-          </button>
-        </div>
-      </form>
+          <div className="card-actions">
+            <Link className="ghost-btn" to={`/pokemon/${id}`}>
+              Cancel
+            </Link>
+            <button type="submit" className="primary-btn" disabled={isSaving}>
+              {isSaving ? 'Saving...' : 'Save changes'}
+            </button>
+          </div>
+        </form>
+      ) : null}
 
       {mode === 'create' ? (
         <section className="catalog-section">
           <header className="catalog-head">
             <h3>Pokemon Catalog</h3>
-            <p>Filter the full list and add directly from a card.</p>
+            <p>Select a card to open details and add notes/comments.</p>
           </header>
 
           <div className="catalog-toolbar">
@@ -295,8 +313,10 @@ export function PokemonFormPage({ mode }: PokemonFormPageProps) {
                       <button
                         type="button"
                         className="catalog-select"
-                        onClick={() => setPokemon(item.name)}
-                        title="Use this pokemon in the form"
+                        onClick={() => {
+                          void handleSelectCatalogCard(item);
+                        }}
+                        title="Open pokemon detail"
                       >
                         <img
                           src={detail?.spriteUrl ?? 'https://placehold.co/96x96?text=?'}
@@ -313,19 +333,15 @@ export function PokemonFormPage({ mode }: PokemonFormPageProps) {
                           ))}
                         </div>
                       </button>
-
-                      <button
-                        type="button"
-                        className="primary-btn"
-                        onClick={() => handleQuickAdd(detail ?? { id: item.id, name: item.name, spriteUrl: null, types: [] })}
-                        disabled={isQuickAddingId === item.id}
-                      >
-                        {isQuickAddingId === item.id ? 'Adding...' : 'Add from card'}
-                      </button>
                     </article>
                   );
                 })}
               </div>
+
+              <section className="empty-state">
+                <h3>Select a pokemon card</h3>
+                <p>Click any card to open a modal with detail, notes and comments.</p>
+              </section>
 
               <footer className="pagination-row">
                 <button
@@ -351,6 +367,22 @@ export function PokemonFormPage({ mode }: PokemonFormPageProps) {
             </>
           )}
         </section>
+      ) : null}
+
+      {mode === 'create' ? (
+        <PokemonNotesModal
+          isOpen={isNotesModalOpen}
+          detail={selectedCatalogDetail}
+          pokemonName={pokemon}
+          notes={notes}
+          comments={comments}
+          isSaving={isSaving}
+          validationError={validationError}
+          onClose={() => setIsNotesModalOpen(false)}
+          onSubmit={handleSubmit}
+          onNotesChange={setNotes}
+          onCommentsChange={setComments}
+        />
       ) : null}
     </section>
   );
