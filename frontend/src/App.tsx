@@ -7,6 +7,8 @@ import { AppLayout } from './components/AppLayout';
 import { AuthPage } from './pages/AuthPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { PokemonDetailPage } from './pages/PokemonDetailPage';
+import { AddPokemonPage } from './pages/AddPokemonPage';
+import { AddPokemonDetailPage } from './pages/AddPokemonDetailPage';
 import { PokemonFormPage } from './pages/PokemonFormPage';
 import { useAuth } from './hooks/useAuth';
 
@@ -37,7 +39,17 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <AppLayout>
-                  <PokemonFormPage mode="create" />
+                  <AddPokemonPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/pokemon/new/:pokeApiId"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <AddPokemonDetailPage />
                 </AppLayout>
               </ProtectedRoute>
             }
@@ -57,7 +69,7 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <AppLayout>
-                  <PokemonFormPage mode="edit" />
+                  <PokemonFormPage />
                 </AppLayout>
               </ProtectedRoute>
             }
