@@ -102,11 +102,8 @@ export class PokemonsService {
   async findOneFavorite(userId: string, favoriteId: string) {
     await this.ensureUserExists(userId);
 
-    const favorite = await this.favoritesRepository.findOne({
-      where: { id: favoriteId, user: { id: userId } },
-      relations: {
-        pokemon: true,
-      },
+    const favorite = await this.findFavoriteByIdentifier(userId, favoriteId, {
+      pokemon: true,
     });
 
     if (!favorite) {
@@ -121,12 +118,9 @@ export class PokemonsService {
     favoriteId: string,
     updateFavoritePokemonDto: UpdateFavoritePokemonDto,
   ) {
-    const favorite = await this.favoritesRepository.findOne({
-      where: { id: favoriteId, user: { id: userId } },
-      relations: {
-        user: true,
-        pokemon: true,
-      },
+    const favorite = await this.findFavoriteByIdentifier(userId, favoriteId, {
+      user: true,
+      pokemon: true,
     });
 
     if (!favorite) {
@@ -211,5 +205,28 @@ export class PokemonsService {
     }
 
     return (await response.json()) as PokeApiResponse;
+  }
+
+  private async findFavoriteByIdentifier(
+    userId: string,
+    identifier: string,
+    relations: {
+      user?: boolean;
+      pokemon?: boolean;
+    },
+  ): Promise<UserFavoritePokemon | null> {
+    const byFavoriteId = await this.favoritesRepository.findOne({
+      where: { id: identifier, user: { id: userId } },
+      relations,
+    });
+
+    if (byFavoriteId) {
+      return byFavoriteId;
+    }
+
+    return await this.favoritesRepository.findOne({
+      where: { pokemon: { id: identifier }, user: { id: userId } },
+      relations,
+    });
   }
 }
