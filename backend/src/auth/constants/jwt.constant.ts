@@ -1,3 +1,5 @@
 export const jwtConstants = {
-  secret:   'NestJS is awesome! Change this secret in production',
+  secret:
+    process.env.JWT_SECRET ??
+    'NestJS is awesome! Change this secret in production',
 };

@@ -72,7 +72,9 @@ export class PokemonsService {
       throw new NotFoundException('User not found');
     }
 
-    const pokemon = await this.getOrCreatePokemon(addFavoritePokemonDto.pokemon);
+    const pokemon = await this.getOrCreatePokemon(
+      addFavoritePokemonDto.pokemon,
+    );
 
     const exists = await this.favoritesRepository.findOne({
       where: { user: { id: user.id }, pokemon: { id: pokemon.id } },
@@ -106,7 +108,10 @@ export class PokemonsService {
    * Possible errors:
    * - NotFoundException when user does not exist.
    */
-  async findAllFavorites(userId: string, listFavoritePokemonDto: ListFavoritePokemonDto) {
+  async findAllFavorites(
+    userId: string,
+    listFavoritePokemonDto: ListFavoritePokemonDto,
+  ) {
     await this.ensureUserExists(userId);
 
     const page = listFavoritePokemonDto.page ?? 1;
@@ -257,7 +262,9 @@ export class PokemonsService {
   private async getOrCreatePokemon(identifier: string): Promise<Pokemon> {
     const normalized = identifier.trim().toLowerCase();
 
-    const existingByName = await this.pokemonRepository.findOneBy({ name: normalized });
+    const existingByName = await this.pokemonRepository.findOneBy({
+      name: normalized,
+    });
     if (existingByName) {
       return existingByName;
     }
@@ -309,15 +316,21 @@ export class PokemonsService {
    * - NotFoundException when PokeAPI returns 404.
    * - InternalServerErrorException for other non-success responses.
    */
-  private async fetchPokemonFromApi(identifier: string): Promise<PokeApiResponse> {
-    const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${identifier}`);
+  private async fetchPokemonFromApi(
+    identifier: string,
+  ): Promise<PokeApiResponse> {
+    const response = await fetch(
+      `https://pokeapi.co/api/v2/pokemon/${identifier}`,
+    );
 
     if (response.status === 404) {
       throw new NotFoundException('Pokemon not found in PokeAPI');
     }
 
     if (!response.ok) {
-      throw new InternalServerErrorException('Failed to fetch pokemon from PokeAPI');
+      throw new InternalServerErrorException(
+        'Failed to fetch pokemon from PokeAPI',
+      );
     }
 
     return (await response.json()) as PokeApiResponse;

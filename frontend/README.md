@@ -31,7 +31,11 @@ npm run dev
 
 ## Environment Variables
 
-- `VITE_API_BASE_URL`: backend base URL (default `http://localhost:3000`)
+- `VITE_API_BASE_URL`: API base URL.
+
+Recommended for local development:
+
+- `VITE_API_BASE_URL=/api` (uses Vite proxy to `http://localhost:3000` and avoids CORS in browser)
 
 ## Pages
 
@@ -50,3 +54,11 @@ npm run dev
 - Form validation for auth and pokemon forms
 - Loading states, API error handling, toast notifications
 - Responsive UI (mobile-first)
+
+## Local CORS Note
+
+The Vite config includes a dev proxy:
+
+- `/api/*` -> `http://localhost:3000/*`
+
+If you still see CORS errors, restart the frontend dev server after changing env variables.

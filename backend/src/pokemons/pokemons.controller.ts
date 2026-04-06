@@ -103,10 +103,7 @@ export class PokemonsController {
    * - 404 Not Found when favorite does not exist for that user.
    */
   @Get(':id')
-  findOne(
-    @Req() request: AuthenticatedRequest,
-    @Param('id') id: string,
-  ) {
+  findOne(@Req() request: AuthenticatedRequest, @Param('id') id: string) {
     return this.pokemonsService.findOneFavorite(request.user.userId, id);
   }
 
@@ -153,10 +150,7 @@ export class PokemonsController {
    * - 404 Not Found when favorite does not exist for that user.
    */
   @Delete(':id')
-  remove(
-    @Req() request: AuthenticatedRequest,
-    @Param('id') id: string,
-  ) {
+  remove(@Req() request: AuthenticatedRequest, @Param('id') id: string) {
     return this.pokemonsService.removeFavorite(request.user.userId, id);
   }
 }

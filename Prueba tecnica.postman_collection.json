@@ -1,0 +1,261 @@
+{
+  "info": {
+    "_postman_id": "67349206-204c-4b8b-8208-274ab510547e",
+    "name": "Prueba tecnica",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "52045222",
+    "_collection_link": "https://go.postman.co/collection/52045222-67349206-204c-4b8b-8208-274ab510547e?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Autenticación Login",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"email\": \"ash@ketchup.com\",\r\n    \"password\": \"Pokemon123!@#\"\r\n\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseURL}}/auth/login",
+          "host": [
+            "{{baseURL}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Autenticacion Register",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"Ash\",\r\n    \"email\": \"ash@ketchup.com\",\r\n    \"password\": \"Pokemon123!@#\"\r\n\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseURL}}/auth/register",
+          "host": [
+            "{{baseURL}}"
+          ],
+          "path": [
+            "auth",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Listar pokémon favoritos",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFzaEBrZXRjaHVwLmNvbSIsInN1YiI6Ijg0ZGJhZTcwLWFhZmItNDA2Mi1hZDU5LTg1YmI1MWZiZjRjNyIsImlhdCI6MTc3NTQ0OTE5NiwiZXhwIjoxNzc1NTM1NTk2fQ.5oc5vzXGIPWEf5dQxnAvS098XN_lejzfWmY4Q2AQm_0",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseURL}}/pokemon?page=1&limit=10",
+          "host": [
+            "{{baseURL}}"
+          ],
+          "path": [
+            "pokemon"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Obtener detalle de pokémon favorito",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFzaEBrZXRjaHVwLmNvbSIsInN1YiI6Ijg0ZGJhZTcwLWFhZmItNDA2Mi1hZDU5LTg1YmI1MWZiZjRjNyIsImlhdCI6MTc3NTQ0OTE5NiwiZXhwIjoxNzc1NTM1NTk2fQ.5oc5vzXGIPWEf5dQxnAvS098XN_lejzfWmY4Q2AQm_0",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseURL}}/pokemon/70a58f03-77d6-4d59-b84e-5050a1883e61",
+          "host": [
+            "{{baseURL}}"
+          ],
+          "path": [
+            "pokemon",
+            "70a58f03-77d6-4d59-b84e-5050a1883e61"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Agregar pokémon a favoritos",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFzaEBrZXRjaHVwLmNvbSIsInN1YiI6Ijg0ZGJhZTcwLWFhZmItNDA2Mi1hZDU5LTg1YmI1MWZiZjRjNyIsImlhdCI6MTc3NTQ0OTE5NiwiZXhwIjoxNzc1NTM1NTk2fQ.5oc5vzXGIPWEf5dQxnAvS098XN_lejzfWmY4Q2AQm_0",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"pokemon\": \"pikachu\",\r\n//  \"pokemon\": 25,\r\n  \"notes\": \"Mi favorito\",\r\n  \"comments\": \"Eléctrico\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseURL}}/pokemon",
+          "host": [
+            "{{baseURL}}"
+          ],
+          "path": [
+            "pokemon"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Actualizar notas/comentarios",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFzaEBrZXRjaHVwLmNvbSIsInN1YiI6Ijg0ZGJhZTcwLWFhZmItNDA2Mi1hZDU5LTg1YmI1MWZiZjRjNyIsImlhdCI6MTc3NTQ0OTE5NiwiZXhwIjoxNzc1NTM1NTk2fQ.5oc5vzXGIPWEf5dQxnAvS098XN_lejzfWmY4Q2AQm_0",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"notes\": \"Actualizado\",\r\n  \"comments\": \"Comentario actualizado\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseURL}}/pokemon/70a58f03-77d6-4d59-b84e-5050a1883e61",
+          "host": [
+            "{{baseURL}}"
+          ],
+          "path": [
+            "pokemon",
+            "70a58f03-77d6-4d59-b84e-5050a1883e61"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Eliminar de favoritos",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFzaEBrZXRjaHVwLmNvbSIsInN1YiI6Ijg0ZGJhZTcwLWFhZmItNDA2Mi1hZDU5LTg1YmI1MWZiZjRjNyIsImlhdCI6MTc3NTQ0OTE5NiwiZXhwIjoxNzc1NTM1NTk2fQ.5oc5vzXGIPWEf5dQxnAvS098XN_lejzfWmY4Q2AQm_0",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseURL}}/pokemon/70a58f03-77d6-4d59-b84e-5050a1883e61",
+          "host": [
+            "{{baseURL}}"
+          ],
+          "path": [
+            "pokemon",
+            "70a58f03-77d6-4d59-b84e-5050a1883e61"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

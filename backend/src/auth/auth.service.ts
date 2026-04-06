@@ -2,12 +2,12 @@ import {
   BadRequestException,
   Injectable,
   UnauthorizedException,
-} from "@nestjs/common";
-import { RegisterDto } from "./dto/register.dto";
-import * as bcryptjs from "bcryptjs";
-import { UsersService } from "../users/users.service";
-import { LoginDto } from "./dto/login.dto";
-import { JwtService } from "@nestjs/jwt/dist/jwt.service";
+} from '@nestjs/common';
+import { RegisterDto } from './dto/register.dto';
+import * as bcryptjs from 'bcryptjs';
+import { UsersService } from '../users/users.service';
+import { LoginDto } from './dto/login.dto';
+import { JwtService } from '@nestjs/jwt/dist/jwt.service';
 
 /**
  * Handles authentication use cases.
@@ -18,8 +18,9 @@ import { JwtService } from "@nestjs/jwt/dist/jwt.service";
  */
 @Injectable()
 export class AuthService {
-  constructor(private readonly usersService: UsersService,
-    private readonly jwtService: JwtService
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,
   ) {}
 
   /**
@@ -38,7 +39,7 @@ export class AuthService {
     const user = await this.usersService.findOneByEmail(email);
 
     if (user) {
-      throw new BadRequestException("Email already exists");
+      throw new BadRequestException('Email already exists');
     }
 
     const hashedPassword = await bcryptjs.hash(password, 10);
@@ -50,7 +51,7 @@ export class AuthService {
     });
 
     return {
-      message: "User created successfully",
+      message: 'User created successfully',
     };
   }
 
@@ -71,13 +72,13 @@ export class AuthService {
     const user = await this.usersService.findOneByEmail(email);
 
     if (!user) {
-      throw new UnauthorizedException("Invalid email");
+      throw new UnauthorizedException('Invalid email');
     }
 
     const isPasswordValid = await bcryptjs.compare(password, user.password);
 
     if (!isPasswordValid) {
-      throw new UnauthorizedException("Invalid password");
+      throw new UnauthorizedException('Invalid password');
     }
 
     const payload = { email: user.email, sub: user.id };
@@ -85,9 +86,9 @@ export class AuthService {
     const token = await this.jwtService.signAsync(payload);
 
     return {
-      message: "Login successful",
+      message: 'Login successful',
       email: user.email,
-      token
+      token,
     };
   }
 }

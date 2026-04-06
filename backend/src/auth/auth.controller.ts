@@ -13,42 +13,42 @@ import { LoginDto } from './dto/login.dto';
  */
 @Controller('auth')
 export class AuthController {
-    constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
-    /**
-     * Registers a new user account.
-     *
-     * Input:
-     * - registerDto: user name, email, and plain password.
-     *
-     * Output:
-     * - Success message confirming user creation.
-     *
-     * Possible errors:
-     * - 400 Bad Request when email already exists.
-     * - 400 Bad Request when DTO validation fails.
-     */
-    @Post('register')
-    register(@Body() registerDto: RegisterDto) {
-        return this.authService.register(registerDto);
-    }
+  /**
+   * Registers a new user account.
+   *
+   * Input:
+   * - registerDto: user name, email, and plain password.
+   *
+   * Output:
+   * - Success message confirming user creation.
+   *
+   * Possible errors:
+   * - 400 Bad Request when email already exists.
+   * - 400 Bad Request when DTO validation fails.
+   */
+  @Post('register')
+  register(@Body() registerDto: RegisterDto) {
+    return this.authService.register(registerDto);
+  }
 
-    /**
-     * Authenticates an existing user.
-     *
-     * Input:
-     * - loginDto: email and plain password.
-     *
-     * Output:
-     * - Login response including a JWT token.
-     *
-     * Possible errors:
-     * - 401 Unauthorized when email does not exist.
-     * - 401 Unauthorized when password is invalid.
-     * - 400 Bad Request when DTO validation fails.
-     */
-    @Post('login')
-    login(@Body() loginDto: LoginDto) {
-        return this.authService.login(loginDto);
-    }
+  /**
+   * Authenticates an existing user.
+   *
+   * Input:
+   * - loginDto: email and plain password.
+   *
+   * Output:
+   * - Login response including a JWT token.
+   *
+   * Possible errors:
+   * - 401 Unauthorized when email does not exist.
+   * - 401 Unauthorized when password is invalid.
+   * - 400 Bad Request when DTO validation fails.
+   */
+  @Post('login')
+  login(@Body() loginDto: LoginDto) {
+    return this.authService.login(loginDto);
+  }
 }
