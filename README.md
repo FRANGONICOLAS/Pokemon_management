@@ -2,11 +2,34 @@
 
 Proyecto de prueba tecnica para gestionar pokemon favoritos con autenticacion.
 
+## Descripcion general
+
+La aplicacion permite que un usuario se registre, inicie sesion y administre su coleccion de pokemon favoritos. Incluye flujo completo de autenticacion con JWT, consumo de PokeAPI para obtener informacion de pokemon y operaciones CRUD sobre favoritos (crear, listar, ver detalle, editar y eliminar).
+
+El proyecto esta organizado como monorepo con frontend y backend desacoplados, comunicados mediante API REST.
+
 ## Resumen del proyecto
 
 - Estructura: monorepo con frontend y backend
-- Frontend: React 19 + TypeScript, React Router, Axios, Vite
-- Backend: NestJS + TypeScript, TypeORM, PostgreSQL, JWT, class-validator
+
+## Stack tecnologico
+
+### Frontend
+
+- Framework: React 18+ con TypeScript (implementado con React 19)
+- State Management: Context API o Redux Toolkit (implementado con Context API)
+- Routing: React Router v6+ (implementado con React Router DOM v7)
+- Styling: CSS Modules, Styled Components o TailwindCSS (implementado con CSS)
+- HTTP Client: Axios o Fetch API (implementado con Axios)
+- Formularios: React Hook Form o Formik (en este proyecto se usa validacion propia en formularios)
+
+### Backend
+
+- Framework: NestJS con TypeScript
+- ORM: TypeORM
+- Base de datos: PostgreSQL
+- Autenticacion: JWT
+- Validacion: class-validator
 
 ## Requisitos generales
 
