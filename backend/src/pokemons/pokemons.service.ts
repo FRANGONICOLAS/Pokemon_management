@@ -7,6 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AddFavoritePokemonDto } from './dto/add-favorite-pokemon.dto';
+import { ListFavoritePokemonDto } from './dto/list-favorite-pokemon.dto';
 import { UpdateFavoritePokemonDto } from './dto/update-favorite-pokemon.dto';
 import { Pokemon } from './entities/pokemon.entity';
 import { UserFavoritePokemon } from './entities/user-favorite-pokemon.entity';
@@ -57,16 +58,25 @@ export class PokemonsService {
       throw new ConflictException('Pokemon is already in favorites');
     }
 
-    const favorite = this.favoritesRepository.create({ user, pokemon });
+    const favorite = this.favoritesRepository.create({
+      user,
+      pokemon,
+      notes: addFavoritePokemonDto.notes?.trim() || null,
+      comments: addFavoritePokemonDto.comments?.trim() || null,
+    });
     const savedFavorite = await this.favoritesRepository.save(favorite);
 
     return this.findOneFavorite(userId, savedFavorite.id);
   }
 
-  async findAllFavorites(userId: string) {
+  async findAllFavorites(userId: string, listFavoritePokemonDto: ListFavoritePokemonDto) {
     await this.ensureUserExists(userId);
 
-    return await this.favoritesRepository.find({
+    const page = listFavoritePokemonDto.page ?? 1;
+    const limit = listFavoritePokemonDto.limit ?? 20;
+    const skip = (page - 1) * limit;
+
+    const [items, total] = await this.favoritesRepository.findAndCount({
       where: { user: { id: userId } },
       relations: {
         pokemon: true,
@@ -74,7 +84,19 @@ export class PokemonsService {
       order: {
         createdAt: 'DESC',
       },
+      skip,
+      take: limit,
     });
+
+    return {
+      data: items,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   async findOneFavorite(userId: string, favoriteId: string) {
@@ -111,24 +133,8 @@ export class PokemonsService {
       throw new NotFoundException('Favorite pokemon not found');
     }
 
-    const newPokemon = await this.getOrCreatePokemon(updateFavoritePokemonDto.pokemon);
-
-    if (favorite.pokemon.id === newPokemon.id) {
-      return favorite;
-    }
-
-    const duplicate = await this.favoritesRepository.findOne({
-      where: {
-        user: { id: userId },
-        pokemon: { id: newPokemon.id },
-      },
-    });
-
-    if (duplicate) {
-      throw new ConflictException('Pokemon is already in favorites');
-    }
-
-    favorite.pokemon = newPokemon;
+    favorite.notes = updateFavoritePokemonDto.notes?.trim() || null;
+    favorite.comments = updateFavoritePokemonDto.comments?.trim() || null;
     await this.favoritesRepository.save(favorite);
 
     return await this.findOneFavorite(userId, favoriteId);

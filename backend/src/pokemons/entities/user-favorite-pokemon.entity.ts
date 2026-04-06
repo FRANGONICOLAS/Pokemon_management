@@ -1,4 +1,5 @@
 import {
+  Column,
   CreateDateColumn,
   Entity,
   JoinColumn,
@@ -27,6 +28,12 @@ export class UserFavoritePokemon {
   })
   @JoinColumn({ name: 'pokemonId' })
   pokemon!: Pokemon;
+
+  @Column({ type: 'text', nullable: true })
+  notes!: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  comments!: string | null;
 
   @CreateDateColumn()
   createdAt!: Date;

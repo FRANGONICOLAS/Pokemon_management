@@ -4,7 +4,8 @@ import {
   Delete,
   Get,
   Param,
-  Patch,
+  Put,
+  Query,
   Post,
   Req,
   UseGuards,
@@ -12,6 +13,7 @@ import {
 import { Request } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AddFavoritePokemonDto } from './dto/add-favorite-pokemon.dto';
+import { ListFavoritePokemonDto } from './dto/list-favorite-pokemon.dto';
 import { UpdateFavoritePokemonDto } from './dto/update-favorite-pokemon.dto';
 import { PokemonsService } from './pokemons.service';
 
@@ -22,7 +24,7 @@ interface AuthenticatedRequest extends Request {
   };
 }
 
-@Controller('pokemons/favorites')
+@Controller('pokemon')
 @UseGuards(JwtAuthGuard)
 export class PokemonsController {
   constructor(private readonly pokemonsService: PokemonsService) {}
@@ -39,36 +41,42 @@ export class PokemonsController {
   }
 
   @Get()
-  findAll(@Req() request: AuthenticatedRequest) {
-    return this.pokemonsService.findAllFavorites(request.user.userId);
+  findAll(
+    @Req() request: AuthenticatedRequest,
+    @Query() listFavoritePokemonDto: ListFavoritePokemonDto,
+  ) {
+    return this.pokemonsService.findAllFavorites(
+      request.user.userId,
+      listFavoritePokemonDto,
+    );
   }
 
-  @Get(':favoriteId')
+  @Get(':id')
   findOne(
     @Req() request: AuthenticatedRequest,
-    @Param('favoriteId') favoriteId: string,
+    @Param('id') id: string,
   ) {
-    return this.pokemonsService.findOneFavorite(request.user.userId, favoriteId);
+    return this.pokemonsService.findOneFavorite(request.user.userId, id);
   }
 
-  @Patch(':favoriteId')
+  @Put(':id')
   update(
     @Req() request: AuthenticatedRequest,
-    @Param('favoriteId') favoriteId: string,
+    @Param('id') id: string,
     @Body() updateFavoritePokemonDto: UpdateFavoritePokemonDto,
   ) {
     return this.pokemonsService.updateFavorite(
       request.user.userId,
-      favoriteId,
+      id,
       updateFavoritePokemonDto,
     );
   }
 
-  @Delete(':favoriteId')
+  @Delete(':id')
   remove(
     @Req() request: AuthenticatedRequest,
-    @Param('favoriteId') favoriteId: string,
+    @Param('id') id: string,
   ) {
-    return this.pokemonsService.removeFavorite(request.user.userId, favoriteId);
+    return this.pokemonsService.removeFavorite(request.user.userId, id);
   }
 }
