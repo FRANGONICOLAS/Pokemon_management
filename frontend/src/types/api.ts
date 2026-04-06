@@ -39,3 +39,15 @@ export interface ApiErrorPayload {
   error?: string;
   statusCode?: number;
 }
+
+export interface PokeApiCatalogItem {
+  id: number;
+  name: string;
+}
+
+export interface PokeApiPokemonMini {
+  id: number;
+  name: string;
+  spriteUrl: string | null;
+  types: string[];
+}
