@@ -12,7 +12,6 @@ interface RegisterInput {
 interface LoginInput {
   email: string;
   password: string;
-  remember: boolean;
 }
 
 interface AuthContextValue {
@@ -42,7 +41,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
       password: input.password,
     });
 
-    saveAuthSession(response.token, response.email, input.remember);
+    saveAuthSession(response.token, response.email, true);
     setToken(response.token);
     setEmail(response.email);
   }

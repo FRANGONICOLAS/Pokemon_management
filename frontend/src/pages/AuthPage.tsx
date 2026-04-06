@@ -14,11 +14,29 @@ export function AuthPage() {
 
   const [tab, setTab] = useState<'login' | 'register'>('login');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loginPasswordVisible, setLoginPasswordVisible] = useState(false);
+  const [registerPasswordVisible, setRegisterPasswordVisible] = useState(false);
+  const [loginSubmitError, setLoginSubmitError] = useState('');
+  const [registerSubmitError, setRegisterSubmitError] = useState('');
+
+  function EyeIcon({ open }: { open: boolean }) {
+    return open ? (
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none">
+        <path d="M1.5 12s3.5-7 10.5-7 10.5 7 10.5 7-3.5 7-10.5 7S1.5 12 1.5 12Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="12" cy="12" r="3.2" stroke="currentColor" strokeWidth="1.8" />
+      </svg>
+    ) : (
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none">
+        <path d="M2 2l20 20" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+        <path d="M10.1 4.5A13 13 0 0 1 12 4c7 0 10.5 8 10.5 8a16.4 16.4 0 0 1-3.7 4.9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M6.2 6.2C3.7 8 2 12 2 12s3.5 8 10 8a11 11 0 0 0 3.4-.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="12" cy="12" r="3.2" stroke="currentColor" strokeWidth="1.8" />
+      </svg>
+    );
+  }
 
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
-  const [remember, setRemember] = useState(true);
-
   const [name, setName] = useState('');
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
@@ -38,6 +56,24 @@ export function AuthPage() {
 
     return null;
   }, [loginEmail, loginPassword]);
+
+  function getFriendlyLoginError(message: string): string {
+    const normalized = message.toLowerCase();
+
+    if (normalized.includes('invalid email')) {
+      return 'No encontramos una cuenta con ese correo.';
+    }
+
+    if (normalized.includes('invalid password')) {
+      return 'La contraseña es incorrecta.';
+    }
+
+    if (normalized.includes('unauthorized')) {
+      return 'Correo o contraseña incorrectos.';
+    }
+
+    return 'No se pudo iniciar sesión. Verifica tus credenciales.';
+  }
 
   const registerError = useMemo(() => {
     if (!name || !registerEmail || !registerPassword) {
@@ -61,20 +97,22 @@ export function AuthPage() {
 
   async function handleLoginSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setLoginSubmitError('');
 
     if (loginError) {
-      pushToast(loginError, 'error');
+      setLoginSubmitError(loginError);
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      await login({ email: loginEmail.trim(), password: loginPassword, remember });
+      await login({ email: loginEmail.trim(), password: loginPassword });
       pushToast('Welcome back trainer!', 'success');
       navigate(from ?? '/dashboard', { replace: true });
     } catch (error) {
-      pushToast(getErrorMessage(error), 'error');
+      const friendlyError = getFriendlyLoginError(getErrorMessage(error));
+      setLoginSubmitError(friendlyError);
     } finally {
       setIsSubmitting(false);
     }
@@ -82,9 +120,10 @@ export function AuthPage() {
 
   async function handleRegisterSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setRegisterSubmitError('');
 
     if (registerError) {
-      pushToast(registerError, 'error');
+      setRegisterSubmitError(registerError);
       return;
     }
 
@@ -103,7 +142,7 @@ export function AuthPage() {
       setLoginPassword('');
       setRegisterPassword('');
     } catch (error) {
-      pushToast(getErrorMessage(error), 'error');
+      setRegisterSubmitError(getErrorMessage(error));
     } finally {
       setIsSubmitting(false);
     }
@@ -154,25 +193,27 @@ export function AuthPage() {
 
             <label>
               Password
-              <input
-                type="password"
-                value={loginPassword}
-                onChange={(event) => setLoginPassword(event.target.value)}
-                placeholder="Your password"
-                required
-              />
-            </label>
-
-            <label className="checkbox-field">
-              <input
-                type="checkbox"
-                checked={remember}
-                onChange={(event) => setRemember(event.target.checked)}
-              />
-              Keep session in localStorage
+              <div className="password-field">
+                <input
+                  type={loginPasswordVisible ? 'text' : 'password'}
+                  value={loginPassword}
+                  onChange={(event) => setLoginPassword(event.target.value)}
+                  placeholder="Your password"
+                  required
+                />
+                <button
+                  type="button"
+                  className="password-toggle"
+                  aria-label={loginPasswordVisible ? 'Hide password' : 'Show password'}
+                  onClick={() => setLoginPasswordVisible((value) => !value)}
+                >
+                  <EyeIcon open={loginPasswordVisible} />
+                </button>
+              </div>
             </label>
 
             {loginError ? <p className="inline-error">{loginError}</p> : null}
+            {loginSubmitError ? <p className="inline-error">{loginSubmitError}</p> : null}
 
             <button type="submit" className="primary-btn" disabled={isSubmitting}>
               {isSubmitting ? 'Signing in...' : 'Sign in'}
@@ -204,16 +245,27 @@ export function AuthPage() {
 
             <label>
               Password
-              <input
-                type="password"
-                value={registerPassword}
-                onChange={(event) => setRegisterPassword(event.target.value)}
-                placeholder="Strong password"
-                required
-              />
+              <div className="password-field">
+                <input
+                  type={registerPasswordVisible ? 'text' : 'password'}
+                  value={registerPassword}
+                  onChange={(event) => setRegisterPassword(event.target.value)}
+                  placeholder="Strong password"
+                  required
+                />
+                <button
+                  type="button"
+                  className="password-toggle"
+                  aria-label={registerPasswordVisible ? 'Hide password' : 'Show password'}
+                  onClick={() => setRegisterPasswordVisible((value) => !value)}
+                >
+                  <EyeIcon open={registerPasswordVisible} />
+                </button>
+              </div>
             </label>
 
             {registerError ? <p className="inline-error">{registerError}</p> : null}
+            {registerSubmitError ? <p className="inline-error">{registerSubmitError}</p> : null}
 
             <button type="submit" className="primary-btn" disabled={isSubmitting}>
               {isSubmitting ? 'Creating...' : 'Create account'}
