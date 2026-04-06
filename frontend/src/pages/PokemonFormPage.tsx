@@ -332,6 +332,11 @@ export function PokemonFormPage({ mode }: PokemonFormPageProps) {
                             </span>
                           ))}
                         </div>
+                        <p className="catalog-meta">
+                          {detail
+                            ? `EXP ${detail.baseExperience} | HT ${detail.height} | WT ${detail.weight}`
+                            : 'Loading stats...'}
+                        </p>
                       </button>
                     </article>
                   );

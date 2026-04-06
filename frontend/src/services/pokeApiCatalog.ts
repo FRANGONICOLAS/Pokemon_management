@@ -10,14 +10,37 @@ interface PokeApiListResponse {
 interface PokeApiDetailResponse {
   id: number;
   name: string;
+  height: number;
+  weight: number;
+  base_experience: number;
   sprites: {
     front_default: string | null;
+    other?: {
+      'official-artwork'?: {
+        front_default: string | null;
+      };
+    };
   };
+  abilities: Array<{
+    ability: {
+      name: string;
+    };
+  }>;
+  stats: Array<{
+    base_stat: number;
+    stat: {
+      name: string;
+    };
+  }>;
   types: Array<{
     type: {
       name: string;
     };
   }>;
+}
+
+function getStatValue(stats: PokeApiDetailResponse['stats'], name: string): number {
+  return stats.find((entry) => entry.stat.name === name)?.base_stat ?? 0;
 }
 
 function getIdFromUrl(url: string): number | null {
@@ -63,6 +86,17 @@ export async function getPokemonMiniDetail(id: number): Promise<PokeApiPokemonMi
     id: payload.id,
     name: payload.name,
     spriteUrl: payload.sprites.front_default,
+    artworkUrl: payload.sprites.other?.['official-artwork']?.front_default ?? null,
     types: payload.types.map((type) => type.type.name),
+    height: payload.height,
+    weight: payload.weight,
+    baseExperience: payload.base_experience,
+    abilities: payload.abilities.map((ability) => ability.ability.name),
+    stats: {
+      hp: getStatValue(payload.stats, 'hp'),
+      attack: getStatValue(payload.stats, 'attack'),
+      defense: getStatValue(payload.stats, 'defense'),
+      speed: getStatValue(payload.stats, 'speed'),
+    },
   };
 }

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { deleteFavorite, getFavoriteById } from '../services/pokemonApi';
-import type { FavoritePokemon } from '../types/api';
+import { getPokemonMiniDetail } from '../services/pokeApiCatalog';
+import type { FavoritePokemon, PokeApiPokemonMini } from '../types/api';
 import { getErrorMessage } from '../lib/errors';
 import { Loader } from '../components/Loader';
 import { useToast } from '../hooks/useToast';
@@ -11,6 +12,7 @@ export function PokemonDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { pushToast } = useToast();
   const [favorite, setFavorite] = useState<FavoritePokemon | null>(null);
+  const [detail, setDetail] = useState<PokeApiPokemonMini | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -25,6 +27,13 @@ export function PokemonDetailPage() {
       try {
         const response = await getFavoriteById(id);
         setFavorite(response);
+
+        try {
+          const richDetail = await getPokemonMiniDetail(response.pokemon.pokeApiId);
+          setDetail(richDetail);
+        } catch (detailError) {
+          pushToast(getErrorMessage(detailError), 'error');
+        }
       } catch (error) {
         pushToast(getErrorMessage(error), 'error');
         navigate('/dashboard', { replace: true });
@@ -72,7 +81,7 @@ export function PokemonDetailPage() {
     <article className="page-card reveal-in detail-layout">
       <header className="detail-head">
         <img
-          src={favorite.pokemon.spriteUrl ?? 'https://placehold.co/128x128?text=?'}
+          src={detail?.artworkUrl ?? favorite.pokemon.spriteUrl ?? 'https://placehold.co/128x128?text=?'}
           alt={favorite.pokemon.name}
         />
         <div>
@@ -84,6 +93,18 @@ export function PokemonDetailPage() {
                 {type}
               </span>
             ))}
+          </div>
+          <div className="meta-grid">
+            <span>Height: {detail?.height ?? '-'}</span>
+            <span>Weight: {detail?.weight ?? '-'}</span>
+            <span>Base EXP: {detail?.baseExperience ?? '-'}</span>
+            <span>Abilities: {detail?.abilities.slice(0, 3).join(', ') ?? '-'}</span>
+          </div>
+          <div className="stat-row">
+            <span>HP {detail?.stats.hp ?? '-'}</span>
+            <span>ATK {detail?.stats.attack ?? '-'}</span>
+            <span>DEF {detail?.stats.defense ?? '-'}</span>
+            <span>SPD {detail?.stats.speed ?? '-'}</span>
           </div>
         </div>
       </header>

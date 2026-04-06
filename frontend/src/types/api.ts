@@ -49,5 +49,16 @@ export interface PokeApiPokemonMini {
   id: number;
   name: string;
   spriteUrl: string | null;
+  artworkUrl: string | null;
   types: string[];
+  height: number;
+  weight: number;
+  baseExperience: number;
+  abilities: string[];
+  stats: {
+    hp: number;
+    attack: number;
+    defense: number;
+    speed: number;
+  };
 }

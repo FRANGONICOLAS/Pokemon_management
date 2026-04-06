@@ -49,7 +49,10 @@ export function PokemonNotesModal({
         </header>
 
         <div className="detail-head modal-detail-head">
-          <img src={detail?.spriteUrl ?? 'https://placehold.co/128x128?text=?'} alt={pokemonName} />
+          <img
+            src={detail?.artworkUrl ?? detail?.spriteUrl ?? 'https://placehold.co/128x128?text=?'}
+            alt={pokemonName}
+          />
           <div>
             <p>{detail ? `PokeAPI id: #${detail.id}` : 'Loading detail...'}</p>
             <div className="tag-row">
@@ -59,6 +62,22 @@ export function PokemonNotesModal({
                 </span>
               ))}
             </div>
+            {detail ? (
+              <div className="meta-grid">
+                <span>Height: {detail.height}</span>
+                <span>Weight: {detail.weight}</span>
+                <span>Base EXP: {detail.baseExperience}</span>
+                <span>Abilities: {detail.abilities.slice(0, 2).join(', ')}</span>
+              </div>
+            ) : null}
+            {detail ? (
+              <div className="stat-row">
+                <span>HP {detail.stats.hp}</span>
+                <span>ATK {detail.stats.attack}</span>
+                <span>DEF {detail.stats.defense}</span>
+                <span>SPD {detail.stats.speed}</span>
+              </div>
+            ) : null}
           </div>
         </div>
 
