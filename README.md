@@ -1,4 +1,4 @@
-# Pokemon Management
+# Pokemon Management por Nicolas Gonzalez Franco  
 
 Proyecto de prueba tecnica para gestionar pokemon favoritos con autenticacion.
 
