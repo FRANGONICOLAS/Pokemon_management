@@ -119,7 +119,7 @@ export function PokemonFormPage() {
         {validationError ? <p className="inline-error">{validationError}</p> : null}
 
         <div className="card-actions">
-          <Link className="ghost-btn" to={`/pokemon/${id}`}>
+          <Link className="ghost-btn" to="/dashboard">
             Cancel
           </Link>
           <button type="submit" className="primary-btn" disabled={isSaving}>
