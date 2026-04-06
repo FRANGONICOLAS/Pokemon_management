@@ -28,6 +28,14 @@ interface PokeApiResponse {
   types: PokeApiType[];
 }
 
+/**
+ * Implements favorite pokemon business logic for authenticated users.
+ *
+ * Process:
+ * - Validates user existence.
+ * - Resolves pokemon from local database or PokeAPI.
+ * - Persists and queries favorites bound to a specific user.
+ */
 @Injectable()
 export class PokemonsService {
   constructor(
@@ -39,6 +47,22 @@ export class PokemonsService {
     private readonly favoritesRepository: Repository<UserFavoritePokemon>,
   ) {}
 
+  /**
+   * Creates a favorite pokemon entry for a user.
+   *
+   * Input:
+   * - userId: authenticated user UUID.
+   * - addFavoritePokemonDto: pokemon identifier plus optional notes/comments.
+   *
+   * Output:
+   * - Created favorite record including related pokemon information.
+   *
+   * Possible errors:
+   * - NotFoundException when user does not exist.
+   * - NotFoundException when pokemon is not found in PokeAPI.
+   * - ConflictException when the pokemon is already favorited by user.
+   * - InternalServerErrorException on unexpected persistence/API failures.
+   */
   async createFavorite(
     userId: string,
     addFavoritePokemonDto: AddFavoritePokemonDto,
@@ -69,6 +93,19 @@ export class PokemonsService {
     return this.findOneFavorite(userId, savedFavorite.id);
   }
 
+  /**
+   * Returns paginated favorites for a user.
+   *
+   * Input:
+   * - userId: authenticated user UUID.
+   * - listFavoritePokemonDto: optional pagination parameters.
+   *
+   * Output:
+   * - Object containing favorites array and pagination metadata.
+   *
+   * Possible errors:
+   * - NotFoundException when user does not exist.
+   */
   async findAllFavorites(userId: string, listFavoritePokemonDto: ListFavoritePokemonDto) {
     await this.ensureUserExists(userId);
 
@@ -99,6 +136,20 @@ export class PokemonsService {
     };
   }
 
+  /**
+   * Finds one favorite by identifier for a specific user.
+   *
+   * Input:
+   * - userId: authenticated user UUID.
+   * - favoriteId: favorite UUID or pokemon UUID associated to that user's favorite.
+   *
+   * Output:
+   * - Favorite record including pokemon relation.
+   *
+   * Possible errors:
+   * - NotFoundException when user does not exist.
+   * - NotFoundException when favorite cannot be found for user.
+   */
   async findOneFavorite(userId: string, favoriteId: string) {
     await this.ensureUserExists(userId);
 
@@ -113,6 +164,20 @@ export class PokemonsService {
     return favorite;
   }
 
+  /**
+   * Updates notes/comments for one favorite.
+   *
+   * Input:
+   * - userId: authenticated user UUID.
+   * - favoriteId: favorite UUID or pokemon UUID associated to that user's favorite.
+   * - updateFavoritePokemonDto: optional notes/comments.
+   *
+   * Output:
+   * - Updated favorite record.
+   *
+   * Possible errors:
+   * - NotFoundException when favorite cannot be found for user.
+   */
   async updateFavorite(
     userId: string,
     favoriteId: string,
@@ -134,6 +199,19 @@ export class PokemonsService {
     return await this.findOneFavorite(userId, favoriteId);
   }
 
+  /**
+   * Deletes one favorite for a user.
+   *
+   * Input:
+   * - userId: authenticated user UUID.
+   * - favoriteId: favorite UUID or pokemon UUID associated to that user's favorite.
+   *
+   * Output:
+   * - Confirmation payload including removed record.
+   *
+   * Possible errors:
+   * - NotFoundException when favorite cannot be found for user.
+   */
   async removeFavorite(userId: string, favoriteId: string) {
     const favorite = await this.findOneFavorite(userId, favoriteId);
     await this.favoritesRepository.delete(favorite.id);
@@ -144,6 +222,18 @@ export class PokemonsService {
     };
   }
 
+  /**
+   * Verifies that the user exists before running favorite operations.
+   *
+   * Input:
+   * - userId: authenticated user UUID.
+   *
+   * Output:
+   * - No return value. Throws when user does not exist.
+   *
+   * Possible errors:
+   * - NotFoundException when user is missing.
+   */
   private async ensureUserExists(userId: string): Promise<void> {
     const user = await this.usersRepository.findOneBy({ id: userId });
     if (!user) {
@@ -151,6 +241,19 @@ export class PokemonsService {
     }
   }
 
+  /**
+   * Resolves a pokemon from local database or creates it from PokeAPI data.
+   *
+   * Input:
+   * - identifier: pokemon name or numeric PokeAPI id.
+   *
+   * Output:
+   * - Pokemon entity persisted in local database.
+   *
+   * Possible errors:
+   * - NotFoundException when pokemon is not found remotely.
+   * - InternalServerErrorException when save fails unexpectedly.
+   */
   private async getOrCreatePokemon(identifier: string): Promise<Pokemon> {
     const normalized = identifier.trim().toLowerCase();
 
@@ -193,6 +296,19 @@ export class PokemonsService {
     }
   }
 
+  /**
+   * Fetches pokemon details from PokeAPI.
+   *
+   * Input:
+   * - identifier: pokemon name or numeric id.
+   *
+   * Output:
+   * - Parsed PokeAPI response payload.
+   *
+   * Possible errors:
+   * - NotFoundException when PokeAPI returns 404.
+   * - InternalServerErrorException for other non-success responses.
+   */
   private async fetchPokemonFromApi(identifier: string): Promise<PokeApiResponse> {
     const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${identifier}`);
 
@@ -207,6 +323,17 @@ export class PokemonsService {
     return (await response.json()) as PokeApiResponse;
   }
 
+  /**
+   * Finds a user's favorite either by favorite UUID or by pokemon UUID.
+   *
+   * Input:
+   * - userId: authenticated user UUID.
+   * - identifier: favorite UUID or pokemon UUID.
+   * - relations: relation flags to eager-load in response.
+   *
+   * Output:
+   * - Matching favorite entity or null.
+   */
   private async findFavoriteByIdentifier(
     userId: string,
     identifier: string,

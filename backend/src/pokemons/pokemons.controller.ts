@@ -24,11 +24,34 @@ interface AuthenticatedRequest extends Request {
   };
 }
 
+/**
+ * Manages authenticated user's favorite pokemon endpoints.
+ *
+ * Process:
+ * - Requires JWT authentication for all routes.
+ * - Reads authenticated user from request.user.
+ * - Delegates business logic to PokemonsService.
+ */
 @Controller('pokemon')
 @UseGuards(JwtAuthGuard)
 export class PokemonsController {
   constructor(private readonly pokemonsService: PokemonsService) {}
 
+  /**
+   * Adds a pokemon to the authenticated user's favorites.
+   *
+   * Input:
+   * - request.user.userId from validated JWT.
+   * - AddFavoritePokemonDto with pokemon identifier and optional notes/comments.
+   *
+   * Output:
+   * - Created favorite record with pokemon relation.
+   *
+   * Possible errors:
+   * - 401 Unauthorized when token is missing/invalid.
+   * - 404 Not Found when user or pokemon cannot be resolved.
+   * - 409 Conflict when pokemon is already favorited by that user.
+   */
   @Post()
   create(
     @Req() request: AuthenticatedRequest,
@@ -40,6 +63,20 @@ export class PokemonsController {
     );
   }
 
+  /**
+   * Lists favorite pokemon for the authenticated user with pagination.
+   *
+   * Input:
+   * - request.user.userId from validated JWT.
+   * - ListFavoritePokemonDto query params (page, limit).
+   *
+   * Output:
+   * - Paginated object containing data and pagination metadata.
+   *
+   * Possible errors:
+   * - 401 Unauthorized when token is missing/invalid.
+   * - 404 Not Found when user does not exist.
+   */
   @Get()
   findAll(
     @Req() request: AuthenticatedRequest,
@@ -51,6 +88,20 @@ export class PokemonsController {
     );
   }
 
+  /**
+   * Retrieves one favorite pokemon for the authenticated user.
+   *
+   * Input:
+   * - request.user.userId from validated JWT.
+   * - id: identifier from route params.
+   *
+   * Output:
+   * - Favorite record with pokemon relation.
+   *
+   * Possible errors:
+   * - 401 Unauthorized when token is missing/invalid.
+   * - 404 Not Found when favorite does not exist for that user.
+   */
   @Get(':id')
   findOne(
     @Req() request: AuthenticatedRequest,
@@ -59,6 +110,21 @@ export class PokemonsController {
     return this.pokemonsService.findOneFavorite(request.user.userId, id);
   }
 
+  /**
+   * Updates notes/comments of one favorite pokemon for the authenticated user.
+   *
+   * Input:
+   * - request.user.userId from validated JWT.
+   * - id: identifier from route params.
+   * - UpdateFavoritePokemonDto with optional notes/comments.
+   *
+   * Output:
+   * - Updated favorite record.
+   *
+   * Possible errors:
+   * - 401 Unauthorized when token is missing/invalid.
+   * - 404 Not Found when favorite does not exist for that user.
+   */
   @Put(':id')
   update(
     @Req() request: AuthenticatedRequest,
@@ -72,6 +138,20 @@ export class PokemonsController {
     );
   }
 
+  /**
+   * Removes one favorite pokemon for the authenticated user.
+   *
+   * Input:
+   * - request.user.userId from validated JWT.
+   * - id: identifier from route params.
+   *
+   * Output:
+   * - Confirmation message and removed record payload.
+   *
+   * Possible errors:
+   * - 401 Unauthorized when token is missing/invalid.
+   * - 404 Not Found when favorite does not exist for that user.
+   */
   @Delete(':id')
   remove(
     @Req() request: AuthenticatedRequest,
