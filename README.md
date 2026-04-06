@@ -98,11 +98,9 @@ npm run dev
 Backend:
 
 - npm run start
-- npm run start:dev
 - npm run build
 - npm run lint
-- npm run test
-- npm run test:e2e
+
 
 Frontend:
 
