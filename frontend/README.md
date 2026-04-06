@@ -1,16 +1,52 @@
-# React + Vite
+# Frontend - Pokemon Management
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + TypeScript application for authentication and favorite pokemon management.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- React 19 + TypeScript
+- React Router
+- Axios
+- Vite
 
-## React Compiler
+## Setup
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. Install dependencies:
 
-## Expanding the ESLint configuration
+```bash
+npm install
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+2. Configure environment variables:
+
+```bash
+cp .env.example .env
+```
+
+3. Run development server:
+
+```bash
+npm run dev
+```
+
+## Environment Variables
+
+- `VITE_API_BASE_URL`: backend base URL (default `http://localhost:3000`)
+
+## Pages
+
+- `/auth`: login and registration
+- `/dashboard`: list, search, filter, pagination and delete
+- `/pokemon/new`: add favorite pokemon
+- `/pokemon/:id`: favorite detail
+- `/pokemon/:id/edit`: edit notes/comments
+
+## Implemented Features
+
+- Auth with persistence in localStorage/sessionStorage
+- Protected routes with JWT token
+- Full CRUD integration with backend API
+- Search by name and filter by type
+- Form validation for auth and pokemon forms
+- Loading states, API error handling, toast notifications
+- Responsive UI (mobile-first)
